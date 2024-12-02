@@ -1,0 +1,202 @@
+:root {
+    /* Light Mode Colors */
+    --bg-primary: #f0f4f8;
+    --bg-secondary: white;
+    --text-primary: #2d3748;
+    --text-secondary: #4a5568;
+    --border-color: #cbd5e0;
+    --circle-bg: #e0e0e0;
+    --circle-progress: #4299e1;
+    
+    /* Button Colors */
+    --btn-start-bg: #48bb78;
+    --btn-start-hover: #38a169;
+    --btn-stop-bg: #ecc94b;
+    --btn-stop-hover: #d69e2e;
+    --btn-reset-bg: #f56565;
+    --btn-reset-hover: #e53e3e;
+    --btn-disabled-bg: #a0aec0;
+}
+
+/* Dark Mode Colors */
+body.dark-mode {
+    --bg-primary: #1a202c;
+    --bg-secondary: #2d3748;
+    --text-primary: #e2e8f0;
+    --text-secondary: #a0aec0;
+    --border-color: #4a5568;
+    --circle-bg: #4a5568;
+    --circle-progress: #63b3ed;
+    
+    /* Dark Mode Button Colors */
+    --btn-start-bg: #2f855a;
+    --btn-start-hover: #276749;
+    --btn-stop-bg: #d69e2e;
+    --btn-stop-hover: #b7791f;
+    --btn-reset-bg: #c53030;
+    --btn-reset-hover: #9b2c2c;
+    --btn-disabled-bg: #4a5568;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s, color 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.theme-toggle-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.theme-toggle-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle-btn:hover {
+    transform: scale(1.1);
+}
+
+.timer-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+    position: relative;
+}
+
+.timer-card {
+    background-color: var(--bg-secondary);
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.timer-circle-container {
+    position: relative;
+    width: 250px;
+    height: 250px;
+    margin: 0 auto 20px;
+}
+
+.timer-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.timer-circle-bg {
+    fill: transparent;
+    stroke: var(--circle-bg);
+    stroke-width: 4;
+}
+
+.timer-circle-progress {
+    fill: transparent;
+    stroke: var(--circle-progress);
+    stroke-width: 4;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    transition: stroke-dashoffset 1s linear;
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+}
+
+.timer-display {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    transition: color 0.3s;
+}
+
+.timer-inputs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.timer-inputs input {
+    width: 70px;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: border-color 0.3s, background-color 0.3s, color 0.3s;
+}
+
+.timer-inputs input:focus {
+    outline: none;
+    border-color: var(--circle-progress);
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+.timer-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.timer-controls button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.btn-start {
+    background-color: var(--btn-start-bg);
+    color: white;
+}
+
+.btn-start:hover {
+    background-color: var(--btn-start-hover);
+}
+
+.btn-stop {
+    background-color: var(--btn-stop-bg);
+    color: white;
+}
+
+.btn-stop:hover {
+    background-color: var(--btn-stop-hover);
+}
+
+.btn-reset {
+    background-color: var(--btn-reset-bg);
+    color: white;
+}
+
+.btn-reset:hover {
+    background-color: var(--btn-reset-hover);
+}
+
+.timer-controls button:disabled {
+    background-color: var(--btn-disabled-bg);
+    cursor: not-allowed;
+}

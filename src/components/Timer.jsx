@@ -1,101 +1,193 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react';
+import './Timer.css';
 
 const Timer = () => {
-    const [time,setTime]= useState(0)
-    const [isRunning,setIsRunning] = useState(false)
-    const [editState,setEditState] = useState({
-        field: ''
-    })
-    const [timer,setTimer] = useState(null)
+    const [time, setTime] = useState(0);
+    const [isRunning, setIsRunning] = useState(false);
+    const [isDarkMode, setIsDarkMode] = useState(false);
+    const timerRef = useRef(null);
+    const circleRef = useRef(null);
 
-    const handleCountDown = ()=>{
-        setTime(time=>{return ((time-1)>0?(time-1):(0))})
-    }
+    // Apply dark/light theme to body
+    useEffect(() => {
+        document.body.classList.toggle('dark-mode', isDarkMode);
+    }, [isDarkMode]);
 
-    useEffect(()=>{
-        if(isRunning===true){
-            console.log("here", isRunning)
-            const timer = setInterval(handleCountDown,1000)
-            setTimer(timer)
-        }else{
-            clearInterval(timer)
-            setTimer(null)
+    const handleCountDown = () => {
+        setTime(prevTime => prevTime > 0 ? prevTime - 1 : 0);
+    };
+
+    useEffect(() => {
+        if (isRunning && time > 0) {
+            timerRef.current = setInterval(handleCountDown, 1000);
+            return () => clearInterval(timerRef.current);
+        } else if (time === 0) {
+            setIsRunning(false);
+            clearInterval(timerRef.current);
         }
-    },[isRunning])
+    }, [isRunning, time]);
 
-    const calculateTime = (hours,minutes,seconds)=>{
-        const calculatedTime = parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
-        return calculatedTime
-    }
-    const formatTime = (time)=>{
-        return {hours: Math.floor(time / 3600),minutes: Math.floor(time % 3600 / 60), seconds: Math.floor(time % 3600 % 60)}
-    }
-
-    useEffect(()=>{
-        const totalTime = formatTime(time)
-        document.getElementById("hour").value = totalTime.hours
-        document.getElementById("minute").value = totalTime.minutes
-        document.getElementById("second").value = totalTime.seconds
-        if(time===0){
-            setIsRunning(false)
-            clearInterval(timer)
-            setTimer(null)
+    useEffect(() => {
+        if (circleRef.current) {
+            const totalTime = calculateTime();
+            const remainingPercentage = (time / totalTime) * 100;
+            circleRef.current.style.strokeDashoffset = `${
+                300 - (remainingPercentage / 100) * 300
+            }px`;
         }
-    },[time])
+    }, [time]);
 
-    const handlePlayClick = ()=>{
-            const hour = document.getElementById("hour").value || 0
-            const minute = document.getElementById("minute").value || 0
-            const second = document.getElementById("second").value || 0
-            const time = calculateTime(hour,minute,second)
-            setTime(time)
-            if(time!==0){
-                setIsRunning(!isRunning)
-            }
-    }
+    const calculateTime = () => {
+        const hour = parseInt(document.getElementById("hour").value) || 0;
+        const minute = parseInt(document.getElementById("minute").value) || 0;
+        const second = parseInt(document.getElementById("second").value) || 0;
+        return hour * 3600 + minute * 60 + second;
+    };
 
-    const handleStopClick = ()=>{
-        setIsRunning(!isRunning)
-    }
+    const formatTime = (time) => ({
+        hours: Math.floor(time / 3600),
+        minutes: Math.floor((time % 3600) / 60),
+        seconds: Math.floor(time % 60)
+    });
 
-    const handleResetClick = ()=>{
-        setIsRunning(false)
-        setTime(0)
-        clearInterval(timer)
-        setTimer(null)
-    }
-
-    const handleInputChange = (e)=>{
-        const value = e.target.value
-        const name = parseInt(e.target.name)
-        console.log(name,value,e.target.max)
-        if(value.length>1){
-            if(name<2){
-                document.getElementsByTagName(`input`)[name+1].focus()
-            }
-            else{
-                document.getElementsByTagName(`input`)[0].focus()
-            }
+    const handlePlayClick = () => {
+        const totalTime = calculateTime();
+        if (totalTime > 0) {
+            setTime(totalTime);
+            setIsRunning(true);
         }
-    }
-  return (
-    <div style={{display:'flex',justifyContent:'center',height:'100vh',alignItems:'center', width:'100%'}}>
-        <div style={{display:'flex',flexDirection:'column',gap:'100px'}}>
-        <div style={{display:'flex',justifyContent:'center', gap:'100px'}}>
-            <input type="number" name="0" id="hour" style={{border:0,backgroundColor:'#242424',textAlign:'center',fontSize:'3rem'}} min={0} max={99} onChange={handleInputChange}/>
-            <span style={{fontSize:'2rem'}}>:</span>
-            <input type="number" name="1" id="minute" style={{border:0,backgroundColor:'#242424',textAlign:'center',fontSize:'3rem',}} min={0} max={59} onChange={handleInputChange}/>
-            <span style={{fontSize:'2rem'}}>:</span>
-            <input type="number" id='second' name='2' style={{border:0,backgroundColor:'#242424',textAlign:'center',fontSize:'3rem',}} min={0} max={59} onChange={handleInputChange}/>
+    };
+
+    const handleStopClick = () => {
+        setIsRunning(prev => !prev);
+    };
+
+    const handleResetClick = () => {
+        setIsRunning(false);
+        setTime(0);
+        clearInterval(timerRef.current);
+        
+        // Reset input fields
+        document.getElementById("hour").value = "";
+        document.getElementById("minute").value = "";
+        document.getElementById("second").value = "";
+    };
+
+    const handleInputChange = (e) => {
+        const { value, name } = e.target;
+        
+        // Limit input to 2 digits
+        if (value.length > 2) {
+            e.target.value = value.slice(0, 2);
+        }
+
+        // Auto-focus to next input
+        if (value.length === 2) {
+            const inputs = document.getElementsByTagName('input');
+            const currentIndex = parseInt(name);
+            const nextIndex = (currentIndex + 1) % inputs.length;
+            inputs[nextIndex].focus();
+        }
+    };
+
+    const toggleTheme = () => {
+        setIsDarkMode(!isDarkMode);
+    };
+
+    const { hours, minutes, seconds } = formatTime(time);
+
+    return (
+        <div className="timer-container">
+            <div className="theme-toggle-container">
+                <button 
+                    onClick={toggleTheme} 
+                    className="theme-toggle-btn"
+                    aria-label="Toggle theme"
+                >
+                    {isDarkMode ? '☀️' : '🌙'}
+                </button>
+            </div>
+            <div className="timer-card">
+                {/* Circular Progress */}
+                <div className="timer-circle-container">
+                    <svg className="timer-svg" viewBox="0 0 100 100">
+                        <circle 
+                            cx="50" 
+                            cy="50" 
+                            r="48" 
+                            className="timer-circle-bg"
+                        />
+                        <circle 
+                            ref={circleRef}
+                            cx="50" 
+                            cy="50" 
+                            r="48" 
+                            className="timer-circle-progress"
+                        />
+                    </svg>
+                    <div className="timer-display">
+                        {hours.toString().padStart(2, '0')}:
+                        {minutes.toString().padStart(2, '0')}:
+                        {seconds.toString().padStart(2, '0')}
+                    </div>
+                </div>
+
+                {/* Input Fields */}
+                <div className="timer-inputs">
+                    <input 
+                        id="hour" 
+                        name="0"
+                        type="number" 
+                        placeholder="HH" 
+                        min="0" 
+                        max="99"
+                        onChange={handleInputChange}
+                    />
+                    <input 
+                        id="minute" 
+                        name="1"
+                        type="number" 
+                        placeholder="MM" 
+                        min="0" 
+                        max="59"
+                        onChange={handleInputChange}
+                    />
+                    <input 
+                        id="second" 
+                        name="2"
+                        type="number" 
+                        placeholder="SS" 
+                        min="0" 
+                        max="59"
+                        onChange={handleInputChange}
+                    />
+                </div>
+
+                {/* Control Buttons */}
+                <div className="timer-controls">
+                    <button 
+                        onClick={handlePlayClick}
+                        className="btn-start"
+                    >
+                        {isRunning ? 'Pause' : 'Start'}
+                    </button>
+                    <button 
+                        onClick={handleStopClick}
+                        className="btn-stop"
+                        disabled={time === 0}
+                    >
+                        {isRunning ? 'Pause' : 'Resume'}
+                    </button>
+                    <button 
+                        onClick={handleResetClick}
+                        className="btn-reset"
+                    >
+                        Reset
+                    </button>
+                </div>
+            </div>
         </div>
-        <div style={{display:'flex', justifyContent:'center', gap:'100px', fontSize:'1.5rem'}}>
-            <button onClick={handlePlayClick} hidden={isRunning}>Play</button>
-            <button hidden={!isRunning} onClick={handleStopClick}>Stop</button>
-            <button onClick={handleResetClick}>Reset</button>
-        </div>
-        </div>       
-    </div>
-  )
-}
+    );
+};
 
-export default Timer
+export default Timer;
